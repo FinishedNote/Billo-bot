@@ -4,7 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Facture</title>
+    <title>Facture Moncler</title>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100% !important;
+        -webkit-text-size-adjust: 100%;
+      }
+    </style>
   </head>
   <tr>
     <td colspan="2">
@@ -625,7 +634,7 @@
                                                                     "
                                                                   >
                                                                     Dear {{
-                                                                    customer_name
+                                                                    client_name
                                                                     }},
                                                                     <br />
                                                                     <br />Thank
@@ -683,7 +692,9 @@
                                                                     "
                                                                   >
                                                                     Order number
-                                                                    <br />9183744801983
+                                                                    <br />{{
+                                                                    order_number
+                                                                    }}
                                                                   </p>
                                                                 </td>
                                                               </tr>
@@ -721,7 +732,9 @@
                                                                     "
                                                                   >
                                                                     Order date:
-                                                                    22/05/25
+                                                                    {{
+                                                                    order_date
+                                                                    }}
                                                                   </p>
                                                                 </td>
                                                               </tr>
@@ -996,7 +1009,7 @@
                                                                                 text-decoration: none;
                                                                                 background-color: #000000;
                                                                               "
-                                                                              src="https://ci3.googleusercontent.com/meips/ADKq_NbFpOWFpUpgxdujqYCE3LKa9mSPp3XWK6J8oeBkOnFMf_9i3yXtZRRM4ZEWjOW6igWjjq8c0Tz0kgO8U9k1D7U0IFxBZyQM9tUFNa3UFYT6SidRYrMfAu6908i6gwBkMv0yyCGl4YjgufXPYIYpKL3cFVZnvPk-5mycsJy8bygBEX6B2sMbuKO-Jmfxzg0Zm7Tm-r-ZIE5zDSUs0ow7Axtx64xkJK-EJuw5K5zk24J1y69O4DwVbi_DjiZON4n291AwgtYLH6Eztu451G5f5YiCpZWgVS187hY=s0-d-e1-ft#https://cdn.discordapp.com/ephemeral-attachments/1407049094014308466/1458221695893635288/IMG_0080.jpg?ex=695eda48&amp;is=695d88c8&amp;hm=c5125a7adaf90bfabf6225d165f5c61d7f84ef53fb2deaad8e0e26f1fc8c9a33&amp;"
+                                                                              src="{{ image_url }}"
                                                                               alt="Agay Short Down Jacket"
                                                                               width="100%"
                                                                               border="0"
@@ -1076,9 +1089,13 @@
                                                                                     "
                                                                                   >
                                                                                     Size:
-                                                                                    L
+                                                                                    {{
+                                                                                    size
+                                                                                    }}
                                                                                     <br />Colour:
-                                                                                    Noir
+                                                                                    {{
+                                                                                    colour
+                                                                                    }}
                                                                                     <br />Quantity:
                                                                                     1
                                                                                   </p>
@@ -1202,7 +1219,9 @@
                                                                                   >
                                                                                     Estimated
                                                                                     delivery
-                                                                                    27/05/25.
+                                                                                    {{
+                                                                                    estimated_delivery
+                                                                                    }}.
                                                                                   </p>
                                                                                 </td>
                                                                               </tr>
@@ -1484,7 +1503,9 @@
                                                                               margin-bottom: 12px;
                                                                             "
                                                                           >
-                                                                            815€
+                                                                            {{
+                                                                            order_total
+                                                                            }}€
                                                                           </p>
                                                                         </td>
                                                                       </tr>
@@ -1645,7 +1666,7 @@
                                                                                     "
                                                                                   >
                                                                                     {{
-                                                                                    customer_name
+                                                                                    client_name
                                                                                     }}
                                                                                   </p>
                                                                                   <p
@@ -1811,7 +1832,7 @@
                                                                                     "
                                                                                   >
                                                                                     {{
-                                                                                    customer_name
+                                                                                    client_name
                                                                                     }}
                                                                                   </p>
                                                                                   <p

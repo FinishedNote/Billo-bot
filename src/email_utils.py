@@ -19,5 +19,5 @@ def send_invoice_email(to_email, subject, html_content):
             
         return True
     except Exception as e:
-        print(f"❌ Erreur Email : {e}")
+        print(f"Erreur Email : {e}")
         return False
