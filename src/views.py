@@ -99,15 +99,15 @@ class FactureModal2(ui.Modal, title="Détails Commande"):
             sujet = f"Facture : {self.product}"
             email_envoye = send_invoice_email(self.email, sujet, html_out)
 
-            status_msg = "**Facture envoyée par mail !**" if email_envoye else "⚠️ **Echec de l'envoi par mail.**"
+            status_msg = "vient juste de générer une facture" if email_envoye else "⚠️ **Echec de l'envoi par mail.**"
             
             file_buffer = BytesIO(html_out.encode('utf-8'))
             file_buffer.seek(0)
-            discord_file = discord.File(file_buffer, filename=f"Facture_{self.product}.html")
+            # discord_file = discord.File(file_buffer, filename=f"Facture_{self.product}.html")
 
             await interaction.followup.send(
-                content=f"{status_msg}\nClient: {self.client_name} | {self.price.value}€",
-                file=discord_file
+                content=f"{interaction.user.mention} {status_msg}\n **Regarde tes mails.**",
+                # file=discord_file
             )
 
         except Exception as e:
