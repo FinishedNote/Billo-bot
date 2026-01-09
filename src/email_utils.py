@@ -13,10 +13,15 @@ def send_invoice_email(to_email, subject, html_content):
         part = MIMEText(html_content, 'html')
         msg.attach(part)
 
-        with smtplib.SMTP_SSL(EMAIL_HOST, EMAIL_PORT) as server:
-            server.login(EMAIL_USER, EMAIL_PASS)
-            server.send_message(msg)
+        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
+        server.login(EMAIL_USER, EMAIL_PASS)
+        server.send_message(msg)
+        server.quit()
             
+        print(f"Mail envoyé à {to_email}")
         return True
     except Exception as e:
         print(f"Erreur Email : {e}")
