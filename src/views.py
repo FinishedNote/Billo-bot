@@ -5,228 +5,181 @@ from jinja2 import Environment, FileSystemLoader
 from src.email_utils import send_invoice_email
 
 
-class FactureModal1(ui.Modal, title="Détails Client"):
-    client_name = ui.TextInput(label="Nom complet", placeholder="Ex: John Doe")
-    email = ui.TextInput(label="Email", placeholder="john.doe@exemple.com")
-    product = ui.TextInput(label="Article", placeholder="Ex: Moncler Maya Jacket")
-    size = ui.TextInput(label="Taille", placeholder="Ex: L")
-    colour = ui.TextInput(label="Couleur", placeholder="Ex: noir")
+TEMPLATE_CONFIG = {
+    "moncler.html": {
+        "label": "Moncler",
+        "description": "Facture Moncler",
+        "emoji": "✨",
+        "fields": [
+            # Page 1
+            [
+                {"name": "client_name", "label": "Nom complet", "placeholder": "Ex: John Doe"},
+                {"name": "email", "label": "Email", "placeholder": "john.doe@exemple.com"},
+                {"name": "product", "label": "Article", "placeholder": "Ex: Moncler Maya Jacket"},
+                {"name": "size", "label": "Taille", "placeholder": "Ex: L"},
+                {"name": "colour", "label": "Couleur", "placeholder": "Ex: noir"},
+            ],
+            # Page 2
+            [
+                {"name": "order_date", "label": "Date de la commande", "placeholder": "Ex: 20/05/18"},
+                {"name": "estimated_delivery", "label": "Livraison estimée", "placeholder": "Ex: 27/05/18"},
+                {"name": "order_number", "label": "Numéro de commande", "placeholder": "Ex: 3070080226406"},
+                {"name": "price", "label": "Prix (sans symbole)", "placeholder": "1380"},
+                {"name": "image_url", "label": "URL de l'image", "placeholder": "https://exemple.com/image.jpg"},
+            ]
+        ]
+    },
+    "dior.html": {
+        "label": "Dior",
+        "description": "Facture Dior",
+        "emoji": "✨",
+        "fields": [
+            [
+                {"name": "client_name", "label": "Nom complet", "placeholder": "Ex: John Doe"},
+                {"name": "email", "label": "Email", "placeholder": "john.doe@exemple.com"},
+                {"name": "product", "label": "Article", "placeholder": "Ex: Sneaker B30 Countdown"},
+                {"name": "size", "label": "Taille", "placeholder": "Ex: 43"},
+                {"name": "price", "label": "Prix (sans symbole)", "placeholder": "Ex: 800"},
+            ],
+            [
+                {"name": "order_number", "label": "Numéro de commande", "placeholder": "Ex: 3070080226406"},
+                {"name": "image_url", "label": "URL de l'image", "placeholder": "https://exemple.com/image.jpg"},
+            ]
+        ]
+    },
+    "margeilagates.html": {
+        "label": "Maison Margiela",
+        "description": "Facture Maison Margiela",
+        "emoji": "✨",
+        "fields": [
+            [
+                {"name": "client_name", "label": "Nom complet", "placeholder": "Ex: John Doe"},
+                {"name": "email", "label": "Email", "placeholder": "john.doe@exemple.com"},
+                {"name": "product", "label": "Article", "placeholder": "Ex: Tabi Boots"},
+                {"name": "size", "label": "Taille", "placeholder": "Ex: 42"},
+            ],
+            [
+                {"name": "order_number", "label": "Numéro de commande", "placeholder": "Ex: 3070080226406"},
+                {"name": "price", "label": "Prix (sans symbole)", "placeholder": "Ex: 950"},
+                {"name": "image_url", "label": "URL de l'image", "placeholder": "https://exemple.com/image.jpg"},
+            ]
+        ]
+    }
+}
 
-    def __init__(self, template_name):
-        super().__init__()
+
+class DynamicModal(ui.Modal):
+    """Modal dynamique qui s'adapte selon la configuration"""
+    
+    def __init__(self, template_name, page_index, data=None):
+        config = TEMPLATE_CONFIG[template_name]
+        page_fields = config["fields"][page_index]
+        
+        title = f"Détails Client" if page_index == 0 else "Détails Commande"
+        super().__init__(title=title)
+        
         self.template_name = template_name
-
+        self.page_index = page_index
+        self.previous_data = data or {}
+        self.inputs = {}
+        
+        for field_config in page_fields:
+            text_input = ui.TextInput(
+                label=field_config["label"],
+                placeholder=field_config["placeholder"],
+                required=True
+            )
+            self.inputs[field_config["name"]] = text_input
+            self.add_item(text_input)
+    
     async def on_submit(self, interaction: discord.Interaction):
-        view = ContinueView(
-            self.template_name,
-            self.client_name.value,
-            self.email.value,
-            self.product.value,
-            self.size.value,
-            self.colour.value
-        )
-        await interaction.response.send_message(
-            "Clique sur le bouton pour continuer :",
-            view=view,
-            ephemeral=True
-        )
+        all_data = {**self.previous_data}
+        for name, input_field in self.inputs.items():
+            all_data[name] = input_field.value
+        
+        config = TEMPLATE_CONFIG[self.template_name]
+        total_pages = len(config["fields"])
+        
+        if self.page_index < total_pages - 1:
+            view = ContinueView(
+                self.template_name,
+                self.page_index + 1,
+                all_data
+            )
+            await interaction.response.send_message(
+                "Clique sur le bouton pour continuer :",
+                view=view,
+                ephemeral=True
+            )
+        else:
+            await self.generate_invoice(interaction, all_data)
+    
+    async def generate_invoice(self, interaction: discord.Interaction, data):
+        await interaction.response.defer(thinking=True)
+        
+        try:
+            if "price" in data:
+                data["order_total"] = str(int(data["price"]) + 15)
+            
+            env = Environment(loader=FileSystemLoader('src/templates'))
+            template = env.get_template(self.template_name)
+            html_out = template.render(**data)
+            
+            sujet = f"Facture : {data.get('product', 'Commande')}"
+            email_envoye = send_invoice_email(data["email"], sujet, html_out)
+            
+            status_msg = "vient juste de générer une facture" if email_envoye else "⚠️ **Echec de l'envoi par mail.**"
+            
+            await interaction.followup.send(
+                content=f"{interaction.user.mention} {status_msg}\n **Regarde tes mails.**",
+            )
+        
+        except Exception as e:
+            await interaction.followup.send(f"Erreur : {e}")
 
 
 class ContinueView(ui.View):
-    def __init__(self, template_name, client_name, email, product, size, colour):
+    
+    def __init__(self, template_name, next_page_index, data):
         super().__init__(timeout=300)
         self.template_name = template_name
-        self.client_name = client_name
-        self.email = email
-        self.product = product
-        self.size = size
-        self.colour = colour
-
+        self.next_page_index = next_page_index
+        self.data = data
+    
     @ui.button(label="Continuer", style=discord.ButtonStyle.primary)
     async def continue_button(self, interaction: discord.Interaction, button: ui.Button):
-        modal2 = FactureModal2(
+        next_modal = DynamicModal(
             self.template_name,
-            self.client_name,
-            self.email,
-            self.product,
-            self.size,
-            self.colour
+            self.next_page_index,
+            self.data
         )
-        await interaction.response.send_modal(modal2)
-
-
-class FactureModal2(ui.Modal, title="Détails Commande"):
-    order_date = ui.TextInput(label="Date de la commande", placeholder="Ex: 20/05/18")
-    estimated_delivery = ui.TextInput(label="Livraison estimée", placeholder="Ex: 27/05/18")
-    order_number = ui.TextInput(label="Numéro de commande", placeholder="Ex: 3070080226406")
-    price = ui.TextInput(label="Prix (sans symbole)", placeholder="1380")
-    image_url = ui.TextInput(
-        label="URL de l'image", 
-        placeholder="https://exemple.com/image.jpg"
-    )
-
-    def __init__(self, template_name, client_name, email, product, size, colour):
-        super().__init__()
-        self.template_name = template_name
-        self.client_name = client_name
-        self.email = email
-        self.product = product
-        self.size = size
-        self.colour = colour
-
-    async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.defer(thinking=True)
-
-        try:
-            data = {
-                "client_name": self.client_name,
-                "email": self.email,
-                "product": self.product,
-                "size": self.size,
-                "colour": self.colour,
-                "order_date": self.order_date.value,
-                "estimated_delivery": self.estimated_delivery.value,
-                "order_number": self.order_number.value,
-                "price": self.price.value,
-                "image_url": self.image_url.value,
-                "order_total": str(int(self.price.value) + 15),
-            }
-
-            env = Environment(loader=FileSystemLoader('src/templates'))
-            template = env.get_template(self.template_name)
-            html_out = template.render(**data)
-
-            sujet = f"Facture : {self.product}"
-            email_envoye = send_invoice_email(self.email, sujet, html_out)
-
-            status_msg = "vient juste de générer une facture" if email_envoye else "⚠️ **Echec de l'envoi par mail.**"
-            
-            file_buffer = BytesIO(html_out.encode('utf-8'))
-            file_buffer.seek(0)
-
-            await interaction.followup.send(
-                content=f"{interaction.user.mention} {status_msg}\n **Regarde tes mails.**",
-            )
-
-        except Exception as e:
-            await interaction.followup.send(f"Erreur : {e}")
-
-class FactureModalDior(ui.Modal, title="Détails Client"):
-    client_name = ui.TextInput(label="Nom complet", placeholder="Ex: John Doe")
-    email = ui.TextInput(label="Email", placeholder="john.doe@exemple.com")
-    product = ui.TextInput(label="Article", placeholder="Ex: Sneaker B30 Countdown")
-    size = ui.TextInput(label="Taille", placeholder="Ex: 43")
-    price = ui.TextInput(label="Prix (sans symbole)", placeholder="Ex: 800")
-
-    def __init__(self, template_name):
-        super().__init__()
-        self.template_name = template_name
-
-    async def on_submit(self, interaction: discord.Interaction):
-        view = ContinueView2(
-            self.template_name,
-            self.client_name.value,
-            self.email.value,
-            self.product.value,
-            self.size.value,
-            self.price.value
-        )
-        await interaction.response.send_message(
-            "Clique sur le bouton pour continuer :",
-            view=view,
-            ephemeral=True
-        )
-
-class ContinueView2(ui.View):
-    def __init__(self, template_name, client_name, email, product, size, price):
-        super().__init__(timeout=300)
-        self.template_name = template_name
-        self.client_name = client_name
-        self.email = email
-        self.product = product
-        self.size = size
-        self.price = price
-
-    @ui.button(label="Continuer", style=discord.ButtonStyle.primary)
-    async def continue_button(self, interaction: discord.Interaction, button: ui.Button):
-        modal2 = FactureModalDior2(
-            self.template_name,
-            self.client_name,
-            self.email,
-            self.product,
-            self.size,
-            self.price
-        )
-        await interaction.response.send_modal(modal2)
-
-class FactureModalDior2(ui.Modal, title="Détails Commande"):
-    order_number = ui.TextInput(label="Numéro de commande", placeholder="Ex: 3070080226406")
-    image_url = ui.TextInput(
-        label="URL de l'image",
-        placeholder="https://exemple.com/image.jpg"
-    )
-
-    def __init__(self, template_name, client_name, email, product, size, price):
-        super().__init__()
-        self.template_name = template_name
-        self.client_name = client_name
-        self.email = email
-        self.product = product
-        self.size = size
-        self.price = price
-
-    async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.defer(thinking=True)
-
-        try:
-            data = {
-                "client_name": self.client_name,
-                "email": self.email,
-                "product": self.product,
-                "size": self.size,
-                "order_number": self.order_number.value,
-                "price": self.price,
-                "image_url": self.image_url.value,
-                "order_total": str(int(self.price) + 15),
-            }
-
-            env = Environment(loader=FileSystemLoader('src/templates'))
-            template = env.get_template(self.template_name)
-            html_out = template.render(**data)
-
-            sujet = f"Facture : {self.product}"
-            email_envoye = send_invoice_email(self.email, sujet, html_out)
-
-            status_msg = "vient juste de générer une facture" if email_envoye else "⚠️ **Echec de l'envoi par mail.**"
-            
-            file_buffer = BytesIO(html_out.encode('utf-8'))
-            file_buffer.seek(0)
-
-            await interaction.followup.send(
-                content=f"{interaction.user.mention} {status_msg}\n **Regarde tes mails.**",
-            )
-
-        except Exception as e:
-            await interaction.followup.send(f"Erreur : {e}")
+        await interaction.response.send_modal(next_modal)
 
 
 class TemplateSelect(ui.Select):
+    
     def __init__(self):
         options = [
-            discord.SelectOption(label="Moncler", value="moncler.html", description="Facture Moncler", emoji="✨"),
-            discord.SelectOption(label="Dior", value="dior.html", description="Facture Dior", emoji="✨"),
-            discord.SelectOption(label="Maison Margiela", value="margeilagates.html", description="Facture Maison Margiela", emoji="✨"),
+            discord.SelectOption(
+                label=config["label"],
+                value=template_name,
+                description=config["description"],
+                emoji=config["emoji"]
+            )
+            for template_name, config in TEMPLATE_CONFIG.items()
         ]
-        super().__init__(placeholder="Choisis le template de facture...", min_values=1, max_values=1, options=options)
-
+        super().__init__(
+            placeholder="Choisis le template de facture...",
+            min_values=1,
+            max_values=1,
+            options=options
+        )
+    
     async def callback(self, interaction: discord.Interaction):
         chosen_template = self.values[0]
-        if chosen_template == "moncler.html":
-            await interaction.response.send_modal(FactureModal1(chosen_template))
-        elif chosen_template == "dior.html":
-            await interaction.response.send_modal(FactureModalDior(chosen_template))
-        elif chosen_template == "margeilagates.html":
-            print("in construction")
+        
+        first_modal = DynamicModal(chosen_template, page_index=0)
+        await interaction.response.send_modal(first_modal)
 
 
 class InvoiceView(ui.View):
