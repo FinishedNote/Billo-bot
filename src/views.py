@@ -118,8 +118,8 @@ class TemplateSelect(ui.Select):
     def __init__(self):
         options = [
             discord.SelectOption(label="Moncler", value="moncler.html", description="Facture Moncler", emoji="✨"),
-            discord.SelectOption(label="Stone Island", value="modern.html", description="Facture Stone Island", emoji="✨"),
-            discord.SelectOption(label="Gérard Darel", value="black.html", description="Facture Gérard Darel", emoji="✨"),
+            discord.SelectOption(label="Dior", value="dior.html", description="Facture Dior", emoji="✨"),
+            discord.SelectOption(label="Maison Margiela", value="margeilagates.html", description="Facture Maison Margiela", emoji="✨"),
         ]
         super().__init__(placeholder="Choisis le template de facture...", min_values=1, max_values=1, options=options)
 
