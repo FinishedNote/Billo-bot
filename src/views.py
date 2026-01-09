@@ -221,7 +221,7 @@ class TemplateSelect(ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         chosen_template = self.values[0]
-        if chosen_template == "Moncler"
+        if chosen_template == "Moncler":
             await interaction.response.send_modal(FactureModal1(chosen_template))
         elif chosen_template == "Dior":
             await interaction.response.send_modal(FactureModalDior(chosen_template))
