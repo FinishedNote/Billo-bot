@@ -187,7 +187,7 @@ class FactureModalDior2(ui.Modal, title="Détails Commande"):
                 "order_number": self.order_number.value,
                 "price": self.price.value,
                 "image_url": self.image_url.value,
-                "order_total": str(int(self.price.value) + 15),
+                "order_total": str(int(self.price) + 15),
             }
 
             env = Environment(loader=FileSystemLoader('src/templates'))
