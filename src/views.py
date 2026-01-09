@@ -221,7 +221,12 @@ class TemplateSelect(ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         chosen_template = self.values[0]
-        await interaction.response.send_modal(FactureModal1(chosen_template))
+        if chosen_template == "Moncler"
+            await interaction.response.send_modal(FactureModal1(chosen_template))
+        elif chosen_template == "Dior":
+            await interaction.response.send_modal(FactureModalDior(chosen_template))
+        else:
+            print("in construction")
 
 
 class InvoiceView(ui.View):
