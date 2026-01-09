@@ -185,7 +185,7 @@ class FactureModalDior2(ui.Modal, title="Détails Commande"):
                 "product": self.product,
                 "size": self.size,
                 "order_number": self.order_number.value,
-                "price": self.price.value,
+                "price": self.price,
                 "image_url": self.image_url.value,
                 "order_total": str(int(self.price) + 15),
             }
