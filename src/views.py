@@ -221,11 +221,11 @@ class TemplateSelect(ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         chosen_template = self.values[0]
-        if chosen_template == "Moncler":
+        if chosen_template == "moncler.html":
             await interaction.response.send_modal(FactureModal1(chosen_template))
-        elif chosen_template == "Dior":
+        elif chosen_template == "dior.html":
             await interaction.response.send_modal(FactureModalDior(chosen_template))
-        else:
+        elif chosen_template == "margeilagates.html":
             print("in construction")
 
 
