@@ -71,7 +71,7 @@ TEMPLATE_CONFIG = {
         "emoji": "✨",
         "fields": [
             [
-                {"name": "style_id", "label": "ID Style", "placeholder": "Ex: 1234"},
+                {"name": "style_id", "label": "ID Style", "placeholder": "Ex: 5287"},
                 {"name": "order_date", "label": "Date de la commande", "placeholder": "Ex: 20/05/18"},
                 {"name": "email", "label": "Email", "placeholder": "john.doe@exemple.com"},
                 {"name": "product", "label": "Article", "placeholder": "Ex: Golden Goose Dadstar"},
