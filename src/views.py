@@ -141,7 +141,11 @@ class DynamicModal(ui.Modal):
             if self.template_name == "moncler.html" or self.template_name == "dior.html":
                 data["order_total"] = str(int(data["price"]) + 15)
             elif self.template_name == "stockx.html":
-                data["order_total"] = (float(data["price"]) + float(data["processing_fee"] + float(data["shipping"])))
+                data["order_total"] = str(
+                float(data["price"]) + 
+                float(data["processing_fee"]) + 
+                float(data["shipping"])
+            )
             
             env = Environment(loader=FileSystemLoader('src/templates'))
             template = env.get_template(self.template_name)
