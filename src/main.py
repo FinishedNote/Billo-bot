@@ -93,8 +93,18 @@ async def on_ready():
         print(e)
 
 
-@bot.tree.command(name="receipt", description="Générer une nouvelle facture")
+@bot.tree.command(name="receipt", description="Générer une nouvelle facture (Réservé Premium)")
 async def receipt(interaction: discord.Interaction):
+    role_premium = interaction.guild.get_role(ROLE_PREMIUM_ID)
+
+    if role_premium not in interaction.user.roles:
+        await interaction.response.send_message(
+            "⛔ **Cette commande est réservée aux membres Premium.**\n"
+            "Fais la commande `/premium` pour débloquer l'accès !", 
+            ephemeral=True
+        )
+        return
+
     await interaction.response.send_message("Quel template veux-tu utiliser ?", view=InvoiceView(), ephemeral=True)
 
 @bot.tree.command(name="premium", description="Devenir membre Premium (5.99€)")
