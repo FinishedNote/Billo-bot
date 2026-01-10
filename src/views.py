@@ -80,8 +80,8 @@ TEMPLATE_CONFIG = {
             [
                 {"name": "order_number", "label": "Numéro de commande", "placeholder": "Ex: 3070080226406"},
                 {"name": "price", "label": "Prix de l'article (sans symbole)", "placeholder": "Ex: 525"},
-                {"name": "processing_fee", "label": "Frais de traitement (sans symbole)", "placeholder": "Ex: 31,59"},
-                {"name": "shipping", "label": "Frais de livraison (sans symbole)", "placeholder": "Ex: 10,95"},
+                {"name": "processing_fee", "label": "Frais de traitement (sans symbole)", "placeholder": "Ex: 31.59"},
+                {"name": "shipping", "label": "Frais de livraison (sans symbole)", "placeholder": "Ex: 10.95"},
                 {"name": "image_url", "label": "URL de l'image", "placeholder": "https://exemple.com/image.jpg"},
             ]
         ]
