@@ -41,16 +41,25 @@ async def handle_stripe(request):
             
             guild = bot.get_guild(guild_id)
             if guild:
-                member = guild.get_member(user_id)
+                try:
+                    member = await guild.fetch_member(user_id)
+                except discord.NotFound:
+                    print(f"❌ Erreur : L'utilisateur {user_id} n'est plus sur le serveur.")
+                    return web.Response(status=200)
+
                 role = guild.get_role(ROLE_PREMIUM_ID)
                 
                 if member and role:
                     await member.add_roles(role)
                     print(f"💰 SUCCÈS : Rôle donné à {member.name}")
+                    try:
+                        await member.send("Merci pour ton achat ! Tu es maintenant **Premium** 💎")
+                    except:
+                        pass
                 else:
-                    print(f"⚠️ Problème : Membre ({member}) ou Rôle ({role}) introuvable.")
+                    print(f"⚠️ Problème : Rôle ({ROLE_PREMIUM_ID}) introuvable sur le serveur.")
             else:
-                print("⚠️ Serveur Discord introuvable (Bot exclu ?)")
+                print(f"⚠️ Serveur Discord {guild_id} introuvable (Bot exclu ?)")
                 
         except KeyError:
             print("❌ ERREUR : Pas de metadata 'discord_id' ou 'guild_id' dans le paiement !")
