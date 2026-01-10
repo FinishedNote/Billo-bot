@@ -141,10 +141,11 @@ class DynamicModal(ui.Modal):
             if self.template_name == "moncler.html" or self.template_name == "dior.html":
                 data["order_total"] = str(int(data["price"]) + 15)
             elif self.template_name == "stockx.html":
-                data["order_total"] = str(
+                data["order_total"] = str(round(
                 float(data["price"]) + 
                 float(data["processing_fee"]) + 
                 float(data["shipping"])
+                , 2)
             )
             
             env = Environment(loader=FileSystemLoader('src/templates'))
