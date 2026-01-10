@@ -14,6 +14,7 @@ ROLE_PREMIUM_ID = 1459252826080542720
 PORT_WEBHOOK = 4242
 
 async def handle_stripe(request):
+    """Reçoit le signal de Stripe quand quelqu'un paie"""
     payload = await request.read()
     sig_header = request.headers.get('Stripe-Signature')
 
@@ -21,12 +22,19 @@ async def handle_stripe(request):
         event = stripe.Webhook.construct_event(
             payload, sig_header, STRIPE_WEBHOOK_SECRET
         )
-    except (ValueError, stripe.error.SignatureVerificationError):
+    except (ValueError, stripe.error.SignatureVerificationError) as e:
+        print(f"❌ Erreur Signature Stripe : {e}") # DEBUG
         return web.Response(status=400)
+
+    # --- DEBUG : ON AFFICHE L'EVENT REÇU ---
+    print(f"📩 Événement Stripe reçu : {event['type']}") 
 
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         
+        # --- DEBUG : ON AFFICHE LES METADATA ---
+        print(f"🔍 Contenu Session : Metadata={session.get('metadata')}")
+
         try:
             guild_id = int(session['metadata']['guild_id'])
             user_id = int(session['metadata']['discord_id'])
@@ -35,15 +43,20 @@ async def handle_stripe(request):
             if guild:
                 member = guild.get_member(user_id)
                 role = guild.get_role(ROLE_PREMIUM_ID)
+                
                 if member and role:
                     await member.add_roles(role)
-                    print(f"💰 PREMIUM : Rôle donné à {member.name}")
-                    try:
-                        await member.send("Merci pour ton achat ! Tu es maintenant **Premium** 💎")
-                    except:
-                        pass
+                    print(f"💰 SUCCÈS : Rôle donné à {member.name}")
+                else:
+                    print(f"⚠️ Problème : Membre ({member}) ou Rôle ({role}) introuvable.")
+            else:
+                print("⚠️ Serveur Discord introuvable (Bot exclu ?)")
+                
         except KeyError:
-            print("⚠️ Paiement reçu mais pas de metadata Discord trouvée.")
+            print("❌ ERREUR : Pas de metadata 'discord_id' ou 'guild_id' dans le paiement !")
+            
+    else:
+        print(f"ℹ️ Événement ignoré (On attendait 'checkout.session.completed', on a reçu '{event['type']}')")
 
     return web.Response(status=200)
 
