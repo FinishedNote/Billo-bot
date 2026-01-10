@@ -61,9 +61,12 @@ async def start_stripe_server():
 @bot.event
 async def on_ready():
     print(f"🤖 Connecté en tant que {bot.user}")
+    
+    bot.loop.create_task(start_stripe_server())
+
     try:
         synced = await bot.tree.sync()
-        print(f"✅ Commandes synchronisées.")
+        print(f"✅ {len(synced)} commandes synchronisées.")
     except Exception as e:
         print(e)
 
