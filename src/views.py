@@ -64,12 +64,32 @@ TEMPLATE_CONFIG = {
                 {"name": "image_url", "label": "URL de l'image", "placeholder": "https://exemple.com/image.jpg"},
             ]
         ]
-    }
+    },
+    "stockx.html": {
+        "label": "Stock x",
+        "description": "Facture Stock x",
+        "emoji": "✨",
+        "fields": [
+            [
+                {"name": "style_id", "label": "ID Style", "placeholder": "Ex: 1234"},
+                {"name": "order_date", "label": "Date de la commande", "placeholder": "Ex: 20/05/18"},
+                {"name": "email", "label": "Email", "placeholder": "john.doe@exemple.com"},
+                {"name": "product", "label": "Article", "placeholder": "Ex: Golden Goose Dadstar"},
+                {"name": "size", "label": "Taille", "placeholder": "Ex: 44"},
+            ],
+            [
+                {"name": "order_number", "label": "Numéro de commande", "placeholder": "Ex: 3070080226406"},
+                {"name": "price", "label": "Prix de l'article (sans symbole)", "placeholder": "Ex: 525"},
+                {"name": "processing_fee", "label": "Frais de traitement (sans symbole)", "placeholder": "Ex: 31,59"},
+                {"name": "shipping", "label": "Frais de livraison (sans symbole)", "placeholder": "Ex: 10,95"},
+                {"name": "image_url", "label": "URL de l'image", "placeholder": "https://exemple.com/image.jpg"},
+            ]
+        ]
+    },
 }
 
 
 class DynamicModal(ui.Modal):
-    """Modal dynamique qui s'adapte selon la configuration"""
     
     def __init__(self, template_name, page_index, data=None):
         config = TEMPLATE_CONFIG[template_name]
@@ -118,8 +138,10 @@ class DynamicModal(ui.Modal):
         await interaction.response.defer(thinking=True)
         
         try:
-            if "price" in data:
+            if self.template_name == "moncler.html" or self.template_name == "dior.html":
                 data["order_total"] = str(int(data["price"]) + 15)
+            elif self.template_name == "stockx.html":
+                data["order_total"] = str(int(data["price"]) + int(data["processing_fee"] + int(data["shipping"])))
             
             env = Environment(loader=FileSystemLoader('src/templates'))
             template = env.get_template(self.template_name)
