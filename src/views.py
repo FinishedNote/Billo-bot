@@ -47,24 +47,24 @@ TEMPLATE_CONFIG = {
             ]
         ]
     },
-    "margeilagates.html": {
-        "label": "Maison Margiela",
-        "description": "Facture Maison Margiela",
-        "emoji": "✨",
-        "fields": [
-            [
-                {"name": "client_name", "label": "Nom complet", "placeholder": "Ex: John Doe"},
-                {"name": "email", "label": "Email", "placeholder": "john.doe@exemple.com"},
-                {"name": "product", "label": "Article", "placeholder": "Ex: Tabi Boots"},
-                {"name": "size", "label": "Taille", "placeholder": "Ex: 42"},
-            ],
-            [
-                {"name": "order_number", "label": "Numéro de commande", "placeholder": "Ex: 3070080226406"},
-                {"name": "price", "label": "Prix (sans symbole)", "placeholder": "Ex: 950"},
-                {"name": "image_url", "label": "URL de l'image", "placeholder": "https://exemple.com/image.jpg"},
-            ]
-        ]
-    },
+    # "margeilagates.html": {
+    #     "label": "Maison Margiela",
+    #     "description": "Facture Maison Margiela",
+    #     "emoji": "✨",
+    #     "fields": [
+    #         [
+    #             {"name": "client_name", "label": "Nom complet", "placeholder": "Ex: John Doe"},
+    #             {"name": "email", "label": "Email", "placeholder": "john.doe@exemple.com"},
+    #             {"name": "product", "label": "Article", "placeholder": "Ex: Tabi Boots"},
+    #             {"name": "size", "label": "Taille", "placeholder": "Ex: 42"},
+    #         ],
+    #         [
+    #             {"name": "order_number", "label": "Numéro de commande", "placeholder": "Ex: 3070080226406"},
+    #             {"name": "price", "label": "Prix (sans symbole)", "placeholder": "Ex: 950"},
+    #             {"name": "image_url", "label": "URL de l'image", "placeholder": "https://exemple.com/image.jpg"},
+    #         ]
+    #     ]
+    # },
     "stockx.html": {
         "label": "Stock x",
         "description": "Facture Stock x",
